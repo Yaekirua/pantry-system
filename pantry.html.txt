@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cengal 4 Pantry Management</title>
+    <style>
+        /* --- CSS Styling --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .code-window {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 12px 20px;
+            font-family: monospace;
+            font-size: 1em;
+        }
+        .copy-btn {
+            background: #0984e3;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: #74b9ff;
+        }
+        pre {
+            background: #1e272e;
+            color: #d2dae2;
+            padding: 25px;
+            overflow-x: auto;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cengal 4 Pantry Management System</h1>
+        <p>This is the official repository page for the Cengal 4 Pantry console application. The C++ source code below handles product registration, inventory tracking, payment processing with membership discounts, and daily sales reporting.</p>
+        
+        <div class="code-window">
+            <div class="code-header">
+                <span>main.cpp</span>
+                <button class="copy-btn" onclick="copyCode()" id="copyBtn">Copy Code</button>
+            </div>
+            <pre><code id="source-code">#include &lt;iostream&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;ctime&gt;
+
+using namespace std;
+
+const int MAX_PRODUCTS = 40;
+//function prototypes
+void registerProduct(int productid[], double productcost[], double productsellPrice[], int productquantity[],int totalquantity[], string productname[], char producttype[], int &amp;productCount);
+void displayProducts(int productid[], double productcost[], double productsellPrice[], int productquantity[], string productname[], char producttype[], int productCount);
+double payment(double productsellPrice[], string productname[], char producttype[], int productCount, double &amp;totalToPay, int &amp;totalProductsSold, int soldquantity[]);
+void membership(string &amp;memberName, string &amp;memberId, int &amp;expired);
+void dailyReport(int totalProductsSold, double totalToPay,int totalquantity[],int soldquantity[],int productid[], double productcost[], double productsellPrice[], int productquantity[], string productname[],int productCount,char producttype[]);
+
+int main() 
+{
+    int productid[MAX_PRODUCTS], productquantity[MAX_PRODUCTS], productCount = 0,totalquantity[MAX_PRODUCTS]={0},soldquantity[MAX_PRODUCTS]={0};
+    double productcost[MAX_PRODUCTS], productsellPrice[MAX_PRODUCTS];
+    string productname[MAX_PRODUCTS];
+    char producttype[MAX_PRODUCTS];
+    string memberName, memberId;
+    int totalProductsSold=0, expired;
+    double totalRevenue, totalToPay;
+    string username,password;
+
+    int choice;
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;
+    cout &lt;&lt; "\t\t      Cengal 4 Pantry Management System" &lt;&lt; endl;
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;
+    cout &lt;&lt;"\n\t\t Login "&lt;&lt;endl;                                        //Login page
+    cout&lt;&lt;"\n\t\t Username:";
+    cin&gt;&gt;username;
+    cout&lt;&lt;"\n\t\t Password:";
+    cin&gt;&gt;password;
+    cout &lt;&lt; "\n\t\t=========================================" &lt;&lt; endl;
+
+    cout&lt;&lt;"\n\t\t";
+    system("Pause");
+    system ("cls");
+    
+    if (username!="Admin" &amp;&amp; password!="2025")                          //if username and password are wrong
+        {
+            cout&lt;&lt;"Invalid username or password! \nYou are not allowed to use the system!"&lt;&lt;endl;
+        }
+    else                                                                //if username and password are correct
+    {
+        
+        do {
+            cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;    //display main menu of the system
+            cout &lt;&lt; "\t\t      Cengal 4 Pantry Management System" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;
+            cout &lt;&lt; "\n\t\tMain Menu\n" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t1. Register Product" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t2. Display Products Details" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t3. Buy &amp; Payment" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t4. Membership" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t5. Daily Report" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t6. Exit" &lt;&lt; endl;
+            cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;
+            cout &lt;&lt; "\n\t\tPlease select an option (1-6): ";
+            cin &gt;&gt; choice;
+            system ("cls");
+    
+            if (choice == 1)                                                    //function call for each selection
+            {
+                registerProduct(productid, productcost, productsellPrice, productquantity,totalquantity, productname, producttype, productCount);
+                system ("cls");
+            } 
+            else if (choice == 2) 
+            {
+                displayProducts(productid, productcost, productsellPrice, productquantity, productname, producttype, productCount);
+            } 
+            else if (choice == 3) 
+            {
+                double change = payment(productsellPrice, productname, producttype, productCount, totalToPay, totalProductsSold, soldquantity);
+                cout &lt;&lt; "Change to return: RM" &lt;&lt; change &lt;&lt; endl;
+                system ("cls");
+            } 
+            else if (choice == 4) 
+            {
+                
+                membership(memberName, memberId, expired);
+                system ("cls");
+            } 
+            else if (choice == 5) 
+            {
+                dailyReport(totalProductsSold,totalToPay,totalquantity,soldquantity,productid,productcost,productsellPrice,productquantity,productname,productCount,producttype);
+                system ("cls");
+                
+            } 
+            else if (choice == 6)
+            {
+                cout &lt;&lt; "Exiting..." &lt;&lt; endl;
+            } 
+            else                                                        //if user entered invalid choice
+            {
+                cout &lt;&lt; "Invalid choice. Please try again." &lt;&lt; endl;
+                system ("cls");
+            }
+        } while (choice != 6); 
+    } //Endif for do...while
+    return 0;
+}
+
+void registerProduct(int productid[], double productcost[], double productsellPrice[], int productquantity[],int totalquantity[], string productname[], char producttype[], int &amp;productCount) 
+{
+        
+    char reg = 'y';
+    
+    while (reg == 'Y' || reg == 'y') 
+    {
+        cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;
+        cout &lt;&lt; "\t\t\t      Register Product" &lt;&lt; endl;
+        cout &lt;&lt; "\t\t=========================================\n" &lt;&lt; endl;
+    
+        if (productCount &gt;= MAX_PRODUCTS)                               //if product has reach the maximum
+        {
+            cout &lt;&lt; "Maximum product capacity reached!" &lt;&lt; endl;
+            system("Pause");
+            reg ='N';
+        }
+        else
+        {
+            cout &lt;&lt; "\tEnter product ID: ";                         //enter product information
+            cin &gt;&gt; productid[productCount];
+            cin.ignore();
+            cout &lt;&lt; "\tEnter product name: ";
+            getline(cin, productname[productCount]);
+            cout &lt;&lt; "\tEnter product type code (F for food or B for beverage): ";
+            cin&gt;&gt;producttype[productCount];
+            cout &lt;&lt; "\tEnter product cost: ";
+            cin &gt;&gt; productcost[productCount];
+            cout &lt;&lt; "\tEnter product sell price: ";
+            cin &gt;&gt; productsellPrice[productCount];
+            cout &lt;&lt; "\tEnter product quantity: ";
+            cin &gt;&gt; productquantity[productCount];
+            totalquantity[productCount]=totalquantity[productCount]+productquantity[productCount];
+            cout &lt;&lt; "\n\t&gt;&gt;&gt;&gt;&gt;&gt; Product successfully registered!" &lt;&lt; endl;
+            productCount++;
+    
+            cout &lt;&lt; "\n\tDo you want to register another product? (Y/N): ";         //to register more products
+            cin &gt;&gt; reg;
+            while (reg != 'Y' &amp;&amp; reg != 'y' &amp;&amp; reg != 'N' &amp;&amp; reg != 'n') 
+            {
+                cout &lt;&lt; "\n\tInvalid input. Please enter Y or N: ";
+                cin &gt;&gt; reg;
+            }
+            system ("cls");
+        }
+    }
+}
+
+void displayProducts(int productid[], double productcost[], double productsellPrice[], int productquantity[], string productname[], char producttype[], int productCount) 
+{
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;          //fucntion to display all product details
+    cout &lt;&lt; "\t\t\t      Display Product Details" &lt;&lt; endl;
+    cout &lt;&lt; "\t\t=========================================\n" &lt;&lt; endl;
+    
+    if (productCount == 0)                                                      //if no products have been registered
+    {
+        cout &lt;&lt; "\t\t&lt;&lt;&lt;&lt;&lt;&lt; No products registered yet. &gt;&gt;&gt;&gt;&gt;&gt;" &lt;&lt; endl;
+        cout &lt;&lt; "\n\t\t";
+        system("Pause");
+        //return;
+    }
+
+    for (int i = 0; i &lt; productCount; i++)                                      //use the loop to display all products
+    {
+        cout &lt;&lt; "\t\tProduct " &lt;&lt; (i+ 1)&lt;&lt; endl&lt;&lt;endl;
+        cout &lt;&lt; "\t\tID\t\t: " &lt;&lt; productid[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\tName\t\t: " &lt;&lt; productname[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\tType\t\t: " &lt;&lt; producttype[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\tCost\t\t: RM" &lt;&lt; productcost[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\tSell Price\t: RM" &lt;&lt; productsellPrice[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\tQuantity\t: " &lt;&lt; productquantity[i] &lt;&lt; endl;
+        cout &lt;&lt; "\t\t----------------------------------" &lt;&lt; endl;
+    }
+    cout &lt;&lt; "\n\t\t";
+    system("Pause");
+    system ("cls");
+}
+
+double payment(double productsellPrice[], string productname[], char producttype[], int productCount, double &amp;totalToPay, int &amp;totalProductsSold, int soldquantity[]) 
+{
+    double totalAmount=0.0, amountPaid, totalFoodPrice=0.0, totalBevPrice=0.0,discount=0.0;
+    totalToPay=0.0;
+    char toBuy, more,member;
+    int foodChoice, bevChoice, quantity;
+    
+    
+    do
+    {
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;      //function to buy and make payment
+    cout &lt;&lt; "\t\t\t      Buy &amp; Payment " &lt;&lt; endl;
+    cout &lt;&lt; "\t\t=========================================\n" &lt;&lt; endl;
+    
+    cout&lt;&lt;"\t\tFood or Beverages? (F / B):"&lt;&lt;endl;
+    cout&lt;&lt;"\t\t";
+    cin&gt;&gt;toBuy;
+    
+    
+    if (toBuy == 'f'|| toBuy =='F')
+    {
+    
+        cout&lt;&lt;"\n\t\t-----------------------------------------------"&lt;&lt;endl;     //display list of foods
+        cout&lt;&lt;"\t\t\tFood\t\t\tPrice"&lt;&lt;endl;
+        cout&lt;&lt;"\t\t-----------------------------------------------"&lt;&lt;endl;
+        
+        for (int i = 0; i &lt; productCount; i++) 
+        {
+            if (producttype[i]== 'f' || producttype[i]== 'F')
+                cout &lt;&lt; "\t\t" &lt;&lt;(i+1)&lt;&lt;". "&lt;&lt; productname[i] &lt;&lt;"\t\t\t RM" &lt;&lt; productsellPrice[i] &lt;&lt; endl;
+        }
+        cout &lt;&lt; "\t\t----------------------------------------------" &lt;&lt; endl;
+    
+    
+    cout&lt;&lt;"\t\tEnter food choice:";
+    cin&gt;&gt;foodChoice;
+    cout&lt;&lt;"\t\tEnter quantity:";
+    cin&gt;&gt;quantity;
+    
+    soldquantity[foodChoice-1] += quantity;                                 //formula for important calculations
+    totalProductsSold +=quantity;
+    totalFoodPrice = productsellPrice[foodChoice - 1] * quantity;
+    cout&lt;&lt;"\t\t&gt;&gt;&gt;&gt; Total price: "&lt;&lt;totalFoodPrice&lt;&lt;endl;
+    
+    totalToPay = totalToPay + totalFoodPrice;
+    }
+    else if (toBuy == 'b'|| toBuy =='B')
+    {
+    
+        cout&lt;&lt;"\t\t-----------------------------------------------"&lt;&lt;endl;   //display list of beverages
+        cout&lt;&lt;"\t\t\tBeverage\t\t\tPrice"&lt;&lt;endl;
+        cout&lt;&lt;"\t\t-----------------------------------------------"&lt;&lt;endl;
+        
+        for (int i = 0; i &lt; productCount; i++) 
+        {
+            if (producttype[i]== 'b' || producttype[i]== 'B')
+                cout &lt;&lt; "\t\t" &lt;&lt;(i+1)&lt;&lt;". "&lt;&lt; productname[i] &lt;&lt;"\t\t\t RM" &lt;&lt; productsellPrice[i] &lt;&lt; endl;
+        }
+        cout &lt;&lt; "\t\t---------------------------------------------" &lt;&lt; endl;
+    
+    
+    cout&lt;&lt;"\t\tEnter beverage choice:";
+    cin&gt;&gt;bevChoice;
+    cout&lt;&lt;"\t\tEnter quantity:";
+    cin&gt;&gt;quantity;
+    
+    soldquantity[bevChoice-1] += quantity;
+    totalBevPrice = productsellPrice[bevChoice - 1] * quantity;
+    totalProductsSold +=quantity;
+    cout&lt;&lt;"\t\tTotal Price: RM: "&lt;&lt;totalBevPrice&lt;&lt;endl;
+    totalToPay = totalToPay + totalBevPrice;
+    }
+    
+    
+    cout&lt;&lt;"\n\t\tGrand Total: RM"&lt;&lt;totalToPay&lt;&lt;endl;
+    
+    cout&lt;&lt;"\n\t\tDo you want to buy another food or beverages? (Y / N): ";  //to buy more food/beverages
+    cin&gt;&gt;more;
+    
+    system ("cls");
+    }while (more == 'y' || more == 'Y');
+    
+    cout&lt;&lt;"\t\t---------------------------------------------" &lt;&lt; endl;        
+    cout&lt;&lt;"\t\t\tPAYMENT"&lt;&lt;endl;
+    cout&lt;&lt;"\t\t---------------------------------------------" &lt;&lt; endl;
+    
+    cout&lt;&lt;"\n\n\t\tMember or non member[M/N]?:"&lt;&lt;endl;                          //checking for membership status
+    cin&gt;&gt;member;
+        
+    cout&lt;&lt;"\n\n\t\t---------------------------------------------" &lt;&lt; endl;        //display receipt
+    cout&lt;&lt;"\t\t\tRECEIPT"&lt;&lt;endl;
+    cout&lt;&lt;"\t\t---------------------------------------------" &lt;&lt; endl;
+    cout&lt;&lt;"\n\t\tTotal Price\t\t: RM"&lt;&lt;totalToPay&lt;&lt;endl;
+    if (member=='m'||member=='M')
+        {
+            discount=totalToPay * 0.10;                                     //member will get 10% discounts
+            totalToPay = totalToPay * 0.90;
+            cout&lt;&lt;"\t\tDiscount 10%\t\t: RM"&lt;&lt;discount&lt;&lt;endl;
+        }
+    cout&lt;&lt;"\n\t\tPrice After Discount\t: RM"&lt;&lt;totalToPay&lt;&lt;endl;
+    cout&lt;&lt; "\t\tEnter amount paid\t: RM";
+    cin&gt;&gt; amountPaid;
+    
+    if (amountPaid &gt; totalToPay) 
+    {
+        cout&lt;&lt;"\n\t\tBalance\t\t\t: RM"&lt;&lt;amountPaid - totalToPay&lt;&lt;endl;
+        cout&lt;&lt;"\n\t\t";
+        system("Pause"); 
+        return amountPaid - totalAmount;   
+    } 
+    else if (amountPaid == totalToPay) 
+    {
+        cout&lt;&lt;"\n\t\tNo Balance."&lt;&lt;endl;
+        cout&lt;&lt;"\n\t\t";
+        system("Pause"); 
+        return amountPaid - totalToPay;    
+    }
+    else 
+    {
+        cout &lt;&lt; "\n\t\tInsufficient payment. Please give sufficient value." &lt;&lt; endl;
+        cout&lt;&lt;"\n\t\t";
+        system("Pause"); 
+
+        return 0.0;
+    }
+    
+}
+
+void membership(string &amp;memberName, string &amp;memberId, int &amp;expired) 
+{
+        
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl; //function to egister membership
+    cout &lt;&lt; "\t\t\t      Membership " &lt;&lt; endl;
+    cout &lt;&lt; "\t\t=========================================\n" &lt;&lt; endl;
+    
+    cout &lt;&lt; "\t\tEnter member name: ";
+    cin.ignore();
+    getline(cin, memberName);
+    cout &lt;&lt; "\t\tEnter member ID: ";
+    cin &gt;&gt; memberId;
+    cout &lt;&lt; "\t\tEnter expiry year: ";
+    cin &gt;&gt; expired;
+    
+    cout&lt;&lt;"\n\t\t&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;Membership registered!" &lt;&lt; endl;
+    cout&lt;&lt;"\n\n\t\t------------------------------------------"&lt;&lt;endl;   //display membership details
+    cout&lt;&lt;"\t\tMembership Details"&lt;&lt;endl;
+    cout&lt;&lt;"\t\t------------------------------------------"&lt;&lt;endl;
+    cout &lt;&lt;"\t\tName\t\t: " &lt;&lt; memberName&lt;&lt;endl;
+    cout &lt;&lt;"\t\tID\t\t: " &lt;&lt; memberId &lt;&lt; endl;
+    cout&lt;&lt;"\t\tExpiry year\t: "&lt;&lt;expired&lt;&lt;endl;
+    cout&lt;&lt;"\n\t\t";
+    system("Pause");
+}
+
+void dailyReport(int totalProductsSold, double totalToPay,int totalquantity[],int soldquantity[],int productid[], double productcost[], double productsellPrice[], int productquantity[], string productname[],int productCount,char producttype[]) 
+{
+    
+    string preferFood, preferBev, dislikeFood, dislikeBev;
+    int maxFood = -99, maxBev = -99, minFood= 100, minBev=100;
+    
+    cout &lt;&lt; "\t\t=========================================" &lt;&lt; endl;  //funstion to display  daily report
+    cout &lt;&lt; "\t\t\t      Daily Report " &lt;&lt; endl;
+    cout &lt;&lt; "\t\t=========================================\n" &lt;&lt; endl;
+    
+   time_t now = time(0);                                                //to get and display curret date 
+   tm *ltm = localtime(&amp;now); 
+   cout &lt;&lt; "\t\tDate : "&lt;&lt; ltm-&gt;tm_mday&lt;&lt;" / "&lt;&lt; 1 + ltm-&gt;tm_mon&lt;&lt;" / "&lt;&lt; 1900 + ltm-&gt;tm_year&lt;&lt;endl;   
+        
+    cout &lt;&lt; "\nID\tFood\t\t   Cost(RM)\tSell Price(RM)\t Quantity In\t Quantity Sold\tBalance in stock"&lt;&lt;endl;
+    cout&lt;&lt;"--------------------------------------------------------------------------------------------------------------" &lt;&lt; endl;
+    
+    for (int i = 0; i &lt; productCount; i++) 
+    {
+        
+        if (producttype[i]=='f' || producttype[i]== 'F')
+        {
+            cout &lt;&lt; productid[i]
+        &lt;&lt; "\t" &lt;&lt; productname[i]
+        &lt;&lt; "\t\t" &lt;&lt; productcost[i]
+        &lt;&lt; "\t\t" &lt;&lt; productsellPrice[i]
+        &lt;&lt; "\t\t" &lt;&lt; totalquantity[i]
+        &lt;&lt; "\t\t"&lt;&lt;soldquantity[i]
+        &lt;&lt; "\t\t"&lt;&lt;(totalquantity[i]-soldquantity[i])&lt;&lt;endl;
+        }
+    }
+    cout &lt;&lt; "---------------------------------------------------------------------------------------------------------------" &lt;&lt; endl;
+    cout &lt;&lt; "\nID\tBeverage\t  Cost(RM)\tSell Price(RM)\t Quantity In\t Quantity Sold\tBalance in stock"&lt;&lt;endl;
+    cout&lt;&lt;"--------------------------------------------------------------------------------------------------------------" &lt;&lt; endl;
+    for (int i = 0; i &lt; productCount; i++) 
+    {
+        
+        if ((producttype[i]=='b' || producttype[i]== 'B'))
+        {
+            cout &lt;&lt; productid[i]
+        &lt;&lt; "\t" &lt;&lt; productname[i]
+        &lt;&lt; "\t\t" &lt;&lt; productcost[i]
+        &lt;&lt; "\t\t" &lt;&lt; productsellPrice[i]
+        &lt;&lt; "\t\t" &lt;&lt; totalquantity[i]
+        &lt;&lt; "\t\t"&lt;&lt;soldquantity[i]
+        &lt;&lt; "\t\t"&lt;&lt;(totalquantity[i]-soldquantity[i])&lt;&lt;endl;
+            }
+}
+    for (int i = 0; i &lt; productCount; i++)                                  //to find the highest sales of food
+    {
+        
+        if ((producttype[i]=='f' || producttype[i]== 'F')&amp;&amp; soldquantity[i]&gt; maxFood)
+        {
+            maxFood = soldquantity[i];
+            preferFood = productname[i];
+        }
+    }
+    for (int i = 0; i &lt; productCount; i++)                                  //to find the highest sales of beverages
+    {
+        
+        if ((producttype[i]=='b' || producttype[i]== 'B') &amp;&amp; soldquantity[i]&gt; maxBev)
+        {
+            maxBev = soldquantity[i];
+            preferBev = productname[i];
+        }
+    }
+        
+    for (int i = 0; i &lt; productCount; i++)                                  //to find the lowest sales of food
+    {
+        if ((producttype[i]=='f' || producttype[i]== 'F') &amp;&amp; soldquantity[i]&lt; minFood)
+        {
+            minFood = soldquantity[i];
+            dislikeFood = productname[i];
+        }
+    }
+    
+    for (int i = 0; i &lt; productCount; i++)                                  //to find the lowest sales of beverages
+    {
+        if ((producttype[i]=='b' || producttype[i]== 'B') &amp;&amp; soldquantity[i]&lt; minBev)
+        {
+            minBev = soldquantity[i];
+            dislikeBev = productname[i];
+        }
+    }
+        
+    cout &lt;&lt; "---------------------------------------------------------------------------------------------------------------" &lt;&lt; endl;
+    cout &lt;&lt; "\n\tTotal products sold: " &lt;&lt; totalProductsSold &lt;&lt; endl;
+    cout &lt;&lt; "\tTotal sale: RM" &lt;&lt; totalToPay &lt;&lt; endl;
+    cout &lt;&lt; "\n\n\t------- Analysis---------"&lt;&lt;endl;
+    cout &lt;&lt; "\tFood with highest sales: "&lt;&lt;preferFood&lt;&lt;endl;
+    cout &lt;&lt; "\tBeverages with highest sales: "&lt;&lt;preferBev&lt;&lt;endl;
+    cout &lt;&lt; "\n\tFood with lowest sales: "&lt;&lt;dislikeFood&lt;&lt;endl;
+    cout &lt;&lt; "\tBeverages with lowest sales: "&lt;&lt;dislikeBev&lt;&lt;endl;
+    cout &lt;&lt; "\n\t";
+    system("Pause");
+}</code></pre>
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const codeBlock = document.getElementById('source-code').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(codeBlock).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#27ae60';
+                
+                // Revert button text and color after 2 seconds
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy Code';
+                    copyBtn.style.background = '#0984e3';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert("Could not copy text. Please select and copy manually.");
+            });
+        }
+    </script>
+</body>
+</html>
